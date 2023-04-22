@@ -20,4 +20,6 @@ int test();
 
 int test_cv_mosaic();
 
+int test_cv_gaussian_filter();
+
 } // namespace TEST

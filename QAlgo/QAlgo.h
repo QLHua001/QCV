@@ -15,6 +15,10 @@
 namespace QAlgo
 {
 
+// 马赛克算法
 void cv_mosaic(cv::Mat original_image, int block_size);
+
+// 高斯滤波算法
+void cv_gaussian_filter(cv::Mat original_image, int kernel_size, double sigma);
 
 } // namespace QAlgo

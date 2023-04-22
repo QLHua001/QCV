@@ -7,7 +7,8 @@ int main(int, char**) {
     std::cout << "Hello, world!\n";
 
     // TEST::test();
-    TEST::test_cv_mosaic();
+    // TEST::test_cv_mosaic();
+    TEST::test_cv_gaussian_filter();
 
     return 0;
 }
