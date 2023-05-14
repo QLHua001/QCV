@@ -10,7 +10,7 @@ set(EXECUTABLE_OUTPUT_PATH ../output)
 set(libs )
 set(src )
 
-set(OpenCV_DIR "/e/QDWorkplace/package/opencv-3.4.16/output_ubuntu2004/share/OpenCV/")
+set(OpenCV_DIR "/e/QDWorkplace/package/opencv-3.4.16/output_ubuntu2004_debug/share/OpenCV/")
 find_package(OpenCV REQUIRED) 
 
 include_directories(./)

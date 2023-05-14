@@ -8,7 +8,8 @@ int main(int, char**) {
 
     // TEST::test();
     // TEST::test_cv_mosaic();
-    TEST::test_cv_gaussian_filter();
+    // TEST::test_cv_gaussian_filter();
+    TEST::test_cv_ImageDenoising();
 
     return 0;
 }

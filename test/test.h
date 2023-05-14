@@ -22,4 +22,7 @@ int test_cv_mosaic();
 
 int test_cv_gaussian_filter();
 
+// cv中常见的图像降噪算法
+int test_cv_ImageDenoising();
+
 } // namespace TEST
