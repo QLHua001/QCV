@@ -1,98 +1,75 @@
 #include <opencv2/opencv.hpp>
 #include <string>
+#include <vector>
+#include <algorithm>
 #include "common/log.h"
 #include "test.h"
-
-// #include <iostream>
-// #include <vector>
-// #include <algorithm>
-
-// using namespace std;
 
 namespace TEST
 {
 
-// custom medianblur
-// // 定义中值滤波函数
-// vector<vector<int>> medianFilter(vector<vector<int>>& img, int kernel_size) {
-//     // 获取图像的行数和列数
-//     int rows = img.size();
-//     int cols = img[0].size();
+static std::vector<std::vector<unsigned char>> custom_MedianFilter(std::vector<std::vector<unsigned char>>& src_array, int kernel_size){
 
-//     // 定义一个二维数组，用于存储中值滤波后的图像
-//     vector<vector<int>> filtered_img(rows, vector<int>(cols, 0));
+    int height = src_array.size();
+    int width = src_array[0].size();
 
-//     // 计算 kernel_size 的一半
-//     int half_kernel_size = (kernel_size - 1) / 2;
+    int half_kernel_size = kernel_size / 2;
 
-//     // 对于每个像素，进行中值滤波
-//     for (int i = 0; i < rows; i++) {
-//         for (int j = 0; j < cols; j++) {
-//             // 定义一个一维数组，用于存储像素点周围 kernel_size x kernel_size 的像素值
-//             vector<int> pixels;
+    std::vector<std::vector<unsigned char>> dst_array(height, std::vector<unsigned char>(width, 0));
+    for(size_t row = 0; row < height; row++){
+        for(size_t col = 0; col < width; col++){
+            std::vector<unsigned char> pixels;
+            for(int i = row-half_kernel_size; i <= row+half_kernel_size; i++){
+                for(int j = col-half_kernel_size; j <= col+half_kernel_size; j++){
+                    if(i < 0 || i >= height || j < 0 || j >= width) continue;
+                    pixels.push_back(src_array[i][j]);
+                }
+            }
+            std::sort(pixels.begin(), pixels.end());
+            dst_array[row][col] = pixels[pixels.size()/2];
+        }
+    }
 
-//             // 遍历像素点周围 kernel_size x kernel_size 的像素
-//             for (int m = -half_kernel_size; m <= half_kernel_size; m++) {
-//                 for (int n = -half_kernel_size; n <= half_kernel_size; n++) {
-//                     // 获取当前像素点的行和列
-//                     int row = i + m;
-//                     int col = j + n;
+    return dst_array;
+}
 
-//                     // 如果当前像素点越界，则跳过
-//                     if (row < 0 || row >= rows || col < 0 || col >= cols) {
-//                         continue;
-//                     }
+static cv::Mat custom_GaussianFilter(cv::Mat& srcimg, int kernel_size, double sigma){
+    // 计算高斯核
+    cv::Mat kernel = cv::Mat::zeros(kernel_size, kernel_size, CV_64FC1);
+    double sum = 0;
+    int center = kernel_size / 2;
+    for(int i = 0; i < kernel_size; i++){
+        for(int j = 0; j < kernel_size; j++){
+            int x = i - center;
+            int y = j - center;
+            kernel.at<double>(i, j) = exp(-(x*x + y*y)/(2*sigma*sigma));
+            sum += kernel.at<double>(i, j);
+        }
+    }
+    kernel /= sum;
 
-//                     // 将当前像素点的值加入到数组 pixels 中
-//                     pixels.push_back(img[row][col]);
-//                 }
-//             }
+    // 对图像进行卷积
+    cv::Mat dstimg = cv::Mat::zeros(srcimg.size(), srcimg.type());
+    for(int row = center; row < srcimg.rows-center; row++){
+        for(int col = center; col < srcimg.cols-center; col++){
+            double sum_r=0, sum_g=0, sum_b=0;
+            for(int m = -center; m <= center; m++){
+                for(int n = -center; n <= center; n++){
+                    int x = row + m;
+                    int y = col + n;
+                    sum_r += srcimg.at<cv::Vec3b>(x, y)[0] * kernel.at<double>(center+m, center+n);
+                    sum_g += srcimg.at<cv::Vec3b>(x, y)[1] * kernel.at<double>(center+m, center+n);
+                    sum_b += srcimg.at<cv::Vec3b>(x, y)[2] * kernel.at<double>(center+m, center+n);
+                }
+            }
+            dstimg.at<cv::Vec3b>(row, col)[0] =  cv::saturate_cast<uchar>(sum_r);
+            dstimg.at<cv::Vec3b>(row, col)[1] =  cv::saturate_cast<uchar>(sum_g);
+            dstimg.at<cv::Vec3b>(row, col)[2] =  cv::saturate_cast<uchar>(sum_b);
+        }
+    }
 
-//             // 对数组 pixels 进行排序，取中间的值作为当前像素点的值
-//             sort(pixels.begin(), pixels.end());
-//             int median = pixels[pixels.size() / 2];
-
-//             // 将中值赋给当前像素点
-//             filtered_img[i][j] = median;
-//         }
-//     }
-
-//     // 返回中值滤波后的图像
-//     return filtered_img;
-// }
-
-// int main() {
-//     // 定义一个二维数组，表示图像像素点的灰度值
-//     vector<vector<int>> img = {
-//         {10, 20, 30, 40, 50},
-//         {15, 25, 35, 45, 55},
-//         {23, 33, 43, 53, 63},
-//         {28, 38, 48, 58, 68},
-//         {33, 43, 53, 63, 73}
-//     };
-
-//     // 使用中值滤波函数进行滤波
-//     vector<vector<int>> filtered_img = medianFilter(img, 3);
-
-//     // 输出滤波前后的图像
-//     cout << "Original Image:" << endl;
-//     for (int i = 0; i < img.size(); i++) {
-//         for (int j = 0; j < img[0].size(); j++) {
-//             cout << img[i][j] << " ";
-//         }
-//         cout << endl;
-//     }
-
-//     cout << "Filtered Image:" << endl;
-//     for (int i = 0; i < filtered_img.size(); i++) {
-//         for (int j = 0; j < filtered_img[0].size(); j++) {
-//             cout << filtered_img[i][j] << " ";
-//         }
-//         cout << endl;
-//     }
-
-//     return 0;
-// }
+    return dstimg;
+}
     
 // cv中常见的图像降噪算法
 int test_cv_ImageDenoising(){
@@ -100,7 +77,7 @@ int test_cv_ImageDenoising(){
 
     std::string imgsrcpath{"/e/QDWorkplace/data/lena.png"};
     std::string imgdstpath{"/e/QDWorkplace/code/QCV/temp/ImageDenoising.jpg"};
-    std::string method{"medianBlur"};
+    std::string method{"GaussianBlur"}; // "medianBlur"
     
     cv::Mat srcimg = cv::imread(imgsrcpath);
     if(srcimg.empty()){
@@ -115,7 +92,11 @@ int test_cv_ImageDenoising(){
     // 中值滤波
     if(method == "medianBlur"){
         cv::medianBlur(srcimg, dstimg, 5); // 卷积核大小为5x5
-    }else{
+    }else if(method == "GaussianBlur"){ // 高斯滤波
+        // cv::GaussianBlur(srcimg, dstimg, cv::Size(5, 5), 1.5);
+        dstimg = custom_GaussianFilter(srcimg, 5, 1.5);
+    }
+    else{
         ERROR("Unsupported Type: %s", method.c_str());
         return TEST_FLAG_BAD_PARAMETER;
     }
