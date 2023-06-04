@@ -21,4 +21,9 @@ void cv_mosaic(cv::Mat original_image, int block_size);
 // 高斯滤波算法
 void cv_gaussian_filter(cv::Mat original_image, int kernel_size, double sigma);
 
+// 直方图均衡化
+void cv_equalize_hist(const cv::Mat& srcimg, cv::Mat& dstimg);
+
+void cv_laplacian(const cv::Mat& srcimg, cv::Mat& dstimg);
+
 } // namespace QAlgo

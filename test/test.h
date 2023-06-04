@@ -25,4 +25,8 @@ int test_cv_gaussian_filter();
 // cv中常见的图像降噪算法
 int test_cv_ImageDenoising();
 
+int test_cv_equalize_hist();
+
+int test_cv_Laplacian();
+
 } // namespace TEST

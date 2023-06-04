@@ -9,7 +9,9 @@ int main(int, char**) {
     // TEST::test();
     // TEST::test_cv_mosaic();
     // TEST::test_cv_gaussian_filter();
-    TEST::test_cv_ImageDenoising();
+    // TEST::test_cv_ImageDenoising();
+    // TEST::test_cv_equalize_hist();
+    TEST::test_cv_Laplacian();
 
     return 0;
 }

@@ -70,6 +70,29 @@ static cv::Mat custom_GaussianFilter(cv::Mat& srcimg, int kernel_size, double si
 
     return dstimg;
 }
+
+static cv::Mat custom_MeanFilter(const cv::Mat& srcimg, int kernel_size){
+    cv::Mat dstimg = cv::Mat::zeros(srcimg.size(), srcimg.type());
+    int center = kernel_size / 2;
+    for(int row = center; row < srcimg.rows-center; row++){
+        for(int col = center; col < srcimg.cols; col++){
+            int sum_r=0, sum_g=0, sum_b=0;
+            for(int i = -center; i <= center; i++){
+                for(int j = -center; j <= center; j++){
+                    int m = row + i;
+                    int n = col + j;
+                    sum_r += srcimg.at<cv::Vec3b>(m, n)[0];
+                    sum_g += srcimg.at<cv::Vec3b>(m, n)[1];
+                    sum_b += srcimg.at<cv::Vec3b>(m, n)[2];
+                }
+            }
+            dstimg.at<cv::Vec3b>(row, col)[0] = cv::saturate_cast<uchar>(sum_r / kernel_size /kernel_size);
+            dstimg.at<cv::Vec3b>(row, col)[1] = cv::saturate_cast<uchar>(sum_g / kernel_size /kernel_size);
+            dstimg.at<cv::Vec3b>(row, col)[2] = cv::saturate_cast<uchar>(sum_b / kernel_size /kernel_size);
+        }
+    }
+    return dstimg;
+}
     
 // cv中常见的图像降噪算法
 int test_cv_ImageDenoising(){
@@ -77,7 +100,7 @@ int test_cv_ImageDenoising(){
 
     std::string imgsrcpath{"/e/QDWorkplace/data/lena.png"};
     std::string imgdstpath{"/e/QDWorkplace/code/QCV/temp/ImageDenoising.jpg"};
-    std::string method{"GaussianBlur"}; // "medianBlur"
+    std::string method{"blur"}; // "medianBlur"中值滤波, "GaussianBlur"高斯滤波, "blur"均值滤波
     
     cv::Mat srcimg = cv::imread(imgsrcpath);
     if(srcimg.empty()){
@@ -90,11 +113,14 @@ int test_cv_ImageDenoising(){
     //################################################################
 
     // 中值滤波
-    if(method == "medianBlur"){
+    if(method == "medianBlur"){// 中值滤波
         cv::medianBlur(srcimg, dstimg, 5); // 卷积核大小为5x5
     }else if(method == "GaussianBlur"){ // 高斯滤波
         // cv::GaussianBlur(srcimg, dstimg, cv::Size(5, 5), 1.5);
         dstimg = custom_GaussianFilter(srcimg, 5, 1.5);
+    }else if(method == "blur"){ // 均值滤波
+        // cv::blur(srcimg, dstimg, cv::Size(5, 5));
+        dstimg = custom_MeanFilter(srcimg, 5);
     }
     else{
         ERROR("Unsupported Type: %s", method.c_str());
