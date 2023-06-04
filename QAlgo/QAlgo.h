@@ -26,4 +26,7 @@ void cv_equalize_hist(const cv::Mat& srcimg, cv::Mat& dstimg);
 
 void cv_laplacian(const cv::Mat& srcimg, cv::Mat& dstimg);
 
+// Gamma校正
+void cv_GammaCorrection(const cv::Mat& src, cv::Mat& dst, float gamma);
+
 } // namespace QAlgo

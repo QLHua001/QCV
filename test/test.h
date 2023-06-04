@@ -29,4 +29,6 @@ int test_cv_equalize_hist();
 
 int test_cv_Laplacian();
 
+int test_cv_GammaCorrection();
+
 } // namespace TEST

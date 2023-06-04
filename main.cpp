@@ -11,7 +11,8 @@ int main(int, char**) {
     // TEST::test_cv_gaussian_filter();
     // TEST::test_cv_ImageDenoising();
     // TEST::test_cv_equalize_hist();
-    TEST::test_cv_Laplacian();
+    // TEST::test_cv_Laplacian();
+    TEST::test_cv_GammaCorrection();
 
     return 0;
 }
